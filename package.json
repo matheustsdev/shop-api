@@ -1,7 +1,7 @@
 {
   "name": "shop-api",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "src/server.ts",
   "repository": "https://github.com/matheustsdev/shop-api.git",
   "author": "Matheus Teixeira da Silva <matheusts.dev@gmail.com>",
   "license": "MIT",
