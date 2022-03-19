@@ -1,4 +1,4 @@
-# IGNews
+# Shop API
 
 This is an application of a API of a basic shop. This is used in [shopp-app](https://github.com/matheustsdev/shop-app), a mobile app.
 
