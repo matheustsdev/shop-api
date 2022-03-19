@@ -19,7 +19,7 @@ class AuthenticateUser {
           .compare(request.headers.authorization, res.rows[0].password)
           .then((comparation) => {
             if (comparation) {
-              return response.json({ token: res.rows[0].auth_token });
+              return response.json({ token: res.rows });
             } else {
               return response.status(401).json({ errorCode: "Wrong password" });
             }
