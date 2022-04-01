@@ -1,9 +1,10 @@
+import { randomUUID } from "crypto";
 import { Request, Response } from "express";
-import { pool } from "../../services/pg";
+import prismaClient from "../../prisma/prisma";
 import { encryptString } from "../../utils";
 
 interface UserType {
-  nickname: string;
+  nickname?: string;
   fullname: string;
   email: string;
   password: string;
@@ -11,31 +12,52 @@ interface UserType {
 
 class CreateUser {
   async handle(request: Request, response: Response) {
-    const newUser: UserType = request.body;
+    const requestBody: UserType = request.body;
+
     const encryptedPassword = await encryptString(
-      newUser.password,
-      newUser.fullname
+      requestBody.password,
+      requestBody.fullname
     );
 
-    const auth_token = await encryptString(newUser.password, newUser.password);
+    const userUuid = randomUUID();
+    const tokenUuid = randomUUID();
 
-    pool.query(
-      `INSERT INTO users (nickname, fullname, email, password, auth_token) VALUES (
-    '${newUser.nickname}', 
-    '${newUser.fullname}',
-    '${newUser.email}',
-    '${encryptedPassword}',
-    '${auth_token}')`,
-      (err, res) => {
-        if (err === undefined) {
-          return response.json(res);
-        } else {
-          return response.send(err);
-        }
-      }
-    );
+    const newUser = {
+      id: userUuid,
+      fullname: requestBody.fullname,
+      email: requestBody.email,
+      password: encryptedPassword,
+    };
 
-    pool.end;
+    const newToken: any = {
+      id: tokenUuid,
+      user_id: userUuid,
+    };
+
+    if (requestBody) {
+      prismaClient.users
+        .create({
+          data: newUser,
+        })
+        .then((res) => {
+          prismaClient.auth_tokens
+            .create({
+              data: newToken,
+            })
+            .then(() => {
+              return response.json(res);
+            });
+        })
+        .catch((err) => {
+          return response.status(400).json({
+            errorMessage: err,
+          });
+        });
+    } else {
+      return response.status(400).json({
+        errorMessage: "Missing object of new user in request body",
+      });
+    }
   }
 }
 

@@ -1,20 +1,29 @@
+import { prisma } from "@prisma/client";
 import { Request, Response } from "express";
-import { pool } from "../../services/pg";
+import prismaClient from "../../prisma/prisma";
 
 class DeleteUser {
   async handle(request: Request, response: Response) {
-    pool.query(
-      `DELETE FROM users WHERE auth_token = '${request.headers.authorization}'`,
-      (err, res) => {
-        if (err === undefined) {
-          return response.json({ response: "User deleted." });
-        } else {
-          return response.status(500).json({ erroCode: err });
-        }
-      }
-    );
+    const userId: any = request.query.id;
 
-    pool.end;
+    try {
+      await prismaClient.users
+        .delete({
+          where: {
+            id: userId,
+          },
+        })
+        .then(() => {
+          prismaClient.auth_tokens;
+
+          response.json({ response: "User deleted" });
+        })
+        .catch((err) => {
+          return response.status(400).json({ errorMessage: err });
+        });
+    } catch (err) {
+      return response.status(400).json({ errorMessage: err });
+    }
   }
 }
 

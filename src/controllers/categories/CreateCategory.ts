@@ -1,14 +1,16 @@
 import { Request, Response } from "express";
 import prismaClient from "../../prisma/prisma";
 
-class CreateProduct {
+class CreateCategory {
   async handle(request: Request, response: Response) {
-    const newProduct = request.body;
+    const newCategory: any = {
+      category: request.query.name,
+    };
 
-    if (newProduct) {
-      await prismaClient.products
+    if (newCategory) {
+      await prismaClient.categories
         .create({
-          data: newProduct,
+          data: newCategory,
         })
         .then((res) => {
           return response.json(res);
@@ -18,10 +20,10 @@ class CreateProduct {
         });
     } else {
       return response.status(400).json({
-        errorMessage: "Missing object of new product in request body",
+        errorMessage: "Missing object of new category in request body",
       });
     }
   }
 }
 
-export { CreateProduct };
+export { CreateCategory };

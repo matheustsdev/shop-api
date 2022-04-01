@@ -1,32 +1,43 @@
 import { Request, Response } from "express";
-import { pool } from "../../services/pg";
 import * as bcrypt from "bcrypt";
-
-interface UserType {
-  nickname: string;
-  fullname: string;
-  email: string;
-  password: string;
-  auth_token: string;
-}
+import prismaClient from "../../prisma/prisma";
 
 class AuthenticateUser {
   async handle(request: Request, response: Response) {
-    pool.query<UserType>(
-      `SELECT * FROM users WHERE email='${request.query.email}'`,
-      (err, res) => {
-        const isMatch = bcrypt
-          .compare(request.headers.authorization, res.rows[0].password)
-          .then((comparation) => {
-            if (comparation) {
-              return response.json({ token: res.rows });
-            } else {
-              return response.status(401).json({ errorCode: "Wrong password" });
-            }
+    const email: any = request.query.email;
+
+    const user = await prismaClient.users
+      .findUnique({
+        where: {
+          email,
+        },
+      })
+      .then((res) => {
+        return res;
+      });
+
+    const isMatch = await bcrypt
+      .compare(request.headers.authorization, user.password)
+      .then((comparation) => {
+        return comparation;
+      });
+
+    if (isMatch) {
+      prismaClient.auth_tokens
+        .findFirst({
+          where: {
+            user_id: user.id,
+          },
+        })
+        .then((res) => {
+          return response.json({
+            ...user,
+            auth_token: res.id,
           });
-      }
-    );
-    pool.end;
+        });
+    } else {
+      return response.status(401).json({ errorMessage: "Wrong password" });
+    }
   }
 }
 

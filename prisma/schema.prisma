@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model categories {
+  id       Int        @id @default(autoincrement())
+  category String     @db.VarChar(50)
+  products products[]
+}
+
+model products {
+  id            Int             @id @default(autoincrement())
+  title         String          @db.VarChar(50)
+  price         Int             @db.Integer
+  description   String          @db.VarChar(500)
+  img_url       String          @db.VarChar(255)
+  stock         Int             @db.Integer
+  category_id   Int
+  category      categories      @relation(fields: [category_id], references: [id])
+  sell_products sell_products[]
+}
+
+model users {
+  id       String  @id @default(uuid())
+  email    String  @unique @db.VarChar(255)
+  password String  @db.VarChar(255)
+  fullname String  @db.VarChar(100)
+  nickname String? @db.VarChar(100)
+
+  auth_tokens auth_tokens[]
+  sells       sells[]
+}
+
+model auth_tokens {
+  id      String @id @default(uuid())
+  user_id String
+
+
+
+  user users @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model sells {
+  id      String   @id @default(uuid()) @map("auth_token")
+  user_id String
+  date    DateTime @default(now()) @db.Timestamp()
+  total   Int      @db.Integer
+
+  user users @relation(fields: [user_id], references: [id])
+
+  sell_products sell_products[]
+}
+
+model sell_products {
+  id         Int    @id @default(autoincrement())
+  product_id Int
+  sell_id    String
+  amount     Int    @db.Integer
+
+  product products @relation(fields: [product_id], references: [id])
+  sell    sells    @relation(fields: [sell_id], references: [id])
+}

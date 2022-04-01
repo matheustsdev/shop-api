@@ -1,19 +1,14 @@
 import { Request, Response } from "express";
 import prismaClient from "../../prisma/prisma";
-import { pool } from "../../services/pg";
-import { createUpdateUserParam } from "../../utils";
 
-class UpdateUser {
+class ReadSellForUser {
   async handle(request: Request, response: Response) {
     const userId: any = request.query.id;
 
-    console.log(userId);
-
-    prismaClient.users
-      .update({
-        data: request.body,
+    prismaClient.sells
+      .findMany({
         where: {
-          id: userId,
+          user_id: userId,
         },
       })
       .then((res) => {
@@ -25,4 +20,4 @@ class UpdateUser {
   }
 }
 
-export { UpdateUser };
+export { ReadSellForUser };

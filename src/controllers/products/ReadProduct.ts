@@ -1,27 +1,16 @@
 import { Request, Response } from "express";
-import { pool } from "../../services/pg";
-import { convertCategoryId } from "../../utils";
+import prismaClient from "../../prisma/prisma";
 
 class ReadProduct {
   async handle(request: Request, response: Response) {
-    // To fetch all products
-    if (!request.query.category) {
-      pool.query(`SELECT * FROM products`, (err, res) => {
-        return response.json(res.rows);
+    await prismaClient.products
+      .findMany()
+      .then((res) => {
+        return response.json(res);
+      })
+      .catch((err) => {
+        return response.status(400).json({ errorMessage: err });
       });
-      pool.end;
-
-      // To fetch for category
-    } else {
-      const category_id: number = convertCategoryId(request.query.category);
-      pool.query(
-        `SELECT * FROM products WHERE category_id = ${category_id}`,
-        (err, res) => {
-          return response.json(res.rows);
-        }
-      );
-      pool.end;
-    }
   }
 }
 

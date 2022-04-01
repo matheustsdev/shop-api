@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import prismaClient from "../../prisma/prisma";
 
-class DeleteProduct {
+class DeleteCategory {
   async handle(request: Request, response: Response) {
     if (request.query.id) {
-      prismaClient.products
+      prismaClient.categories
         .delete({
           where: { id: Number(request.query.id) },
         })
@@ -20,4 +20,4 @@ class DeleteProduct {
   }
 }
 
-export { DeleteProduct };
+export { DeleteCategory };

@@ -11,7 +11,10 @@ import { UpdateUser } from "./controllers/users/UpdateUser";
 import { DeleteUser } from "./controllers/users/DeleteUser";
 import { AuthenticateUser } from "./controllers/users/AuthenticateUser";
 import { CreateSell } from "./controllers/sell/CreateSell";
-import { ReadSell } from "./controllers/sell/ReadSell";
+import { ReadSellForUser } from "./controllers/sell/ReadSellForUser";
+import { ReadSellForId } from "./controllers/sell/ReadSellForId";
+import { CreateCategory } from "./controllers/categories/CreateCategory";
+import { DeleteCategory } from "./controllers/categories/DeleteCategory";
 
 dotenv.config();
 
@@ -49,6 +52,16 @@ router.get("/auth", new AuthenticateUser().handle);
 
 router.post("/add/sell", ensureAuthenticated, new CreateSell().handle);
 
-router.get("/sell", ensureAuthenticated, new ReadSell().handle);
+router.get("/sell", ensureAuthenticated, new ReadSellForUser().handle);
+router.get("/sell/products", ensureAuthenticated, new ReadSellForId().handle);
+
+// CD Category
+
+router.get("/add/category", ensureAuthenticated, new CreateCategory().handle);
+router.delete(
+  "/remove/category",
+  ensureAuthenticated,
+  new DeleteCategory().handle
+);
 
 export { router };

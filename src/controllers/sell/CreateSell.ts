@@ -1,32 +1,49 @@
-import { RandomUUIDOptions } from "crypto";
 import { Request, Response } from "express";
-import { QueryResult } from "pg";
-import { pool } from "../../services/pg";
-import { convertCategoryId } from "../../utils";
+import prismaClient from "../../prisma/prisma";
 
 interface SellType {
-  product_fk: number;
-  sell_date: string;
-  sell_ref: string;
+  user_id: string;
+  total: number;
 }
 
+interface ProductSellType {
+  product_id: number;
+  amount: number;
+}
+
+interface SellDataType {
+  sell: SellType;
+  products: ProductSellType[];
+}
 class CreateSell {
   async handle(request: Request, response: Response) {
-    const newSell: SellType = request.body;
+    const sellData: SellDataType = request.body;
 
-    pool.query(
-      `INSERT INTO sell_register (user_fk, product_fk, sell_date, sell_ref) VALUES (
-            (SELECT (user_id) FROM users WHERE auth_token = '${request.headers.authorization}'), ${newSell.product_fk}, '${newSell.sell_date}', '${newSell.sell_ref}')`,
-      (err, res) => {
-        if (err === undefined) {
-          return response.send(res);
-        } else {
-          return response.send(err);
-        }
-      }
-    );
+    const sellRegister = await prismaClient.sells
+      .create({
+        data: sellData.sell,
+      })
+      .then((res) => {
+        return res;
+      });
 
-    pool.end;
+    const transaction = await prismaClient
+      .$transaction(
+        sellData.products.map((product) => {
+          return prismaClient.sell_products.create({
+            data: {
+              sell_id: sellRegister.id,
+              ...product,
+            },
+          });
+        })
+      )
+      .then((res) => {
+        return response.json(sellRegister);
+      })
+      .catch((err) => {
+        return response.status(400).json({ errorMessage: err });
+      });
   }
 }
 
