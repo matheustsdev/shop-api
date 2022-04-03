@@ -26,11 +26,10 @@ model products {
 }
 
 model users {
-  id       String  @id @default(uuid())
-  email    String  @unique @db.VarChar(255)
-  password String  @db.VarChar(255)
-  fullname String  @db.VarChar(100)
-  nickname String? @db.VarChar(100)
+  id       String @id @default(uuid())
+  email    String @unique @db.VarChar(255)
+  password String @db.VarChar(255)
+  fullname String @db.VarChar(100)
 
   auth_tokens auth_tokens[]
   sells       sells[]
@@ -64,4 +63,10 @@ model sell_products {
 
   product products @relation(fields: [product_id], references: [id])
   sell    sells    @relation(fields: [sell_id], references: [id])
+}
+
+model coupon {
+  id       Int    @id @default(autoincrement())
+  coupon   String @db.VarChar(25)
+  discount Int
 }

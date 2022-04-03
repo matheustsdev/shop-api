@@ -15,6 +15,8 @@ import { ReadSellForUser } from "./controllers/sell/ReadSellForUser";
 import { ReadSellForId } from "./controllers/sell/ReadSellForId";
 import { CreateCategory } from "./controllers/categories/CreateCategory";
 import { DeleteCategory } from "./controllers/categories/DeleteCategory";
+import { CreateCoupon } from "./controllers/coupons/CreateCoupon";
+import { UseCoupon } from "./controllers/coupons/UseCoupon";
 
 dotenv.config();
 
@@ -63,5 +65,8 @@ router.delete(
   ensureAuthenticated,
   new DeleteCategory().handle
 );
+
+router.post("/add/coupon", ensureAuthenticated, new CreateCoupon().handle);
+router.get("/use/coupon", ensureAuthenticated, new UseCoupon().handle);
 
 export { router };
