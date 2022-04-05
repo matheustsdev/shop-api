@@ -1,19 +1,20 @@
 import { Request, Response } from "express";
 import prismaClient from "../../prisma/prisma";
 
-class ReadProduct {
+class ReadCollection {
   async handle(request: Request, response: Response) {
-    await prismaClient.products
-      .findMany({
+    await prismaClient.collection
+      .findFirst({
         select: {
           id: true,
-          description: true,
-          img_url: true,
-          price: true,
-          stock: true,
-          title: true,
-          category: true,
-          category_id: false,
+          collection_products: {
+            select: {
+              product: true,
+            },
+          },
+          name: true,
+          banner_img: true,
+          body: true,
         },
       })
       .then((res) => {
@@ -25,4 +26,4 @@ class ReadProduct {
   }
 }
 
-export { ReadProduct };
+export { ReadCollection };

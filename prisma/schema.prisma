@@ -14,15 +14,16 @@ model categories {
 }
 
 model products {
-  id            Int             @id @default(autoincrement())
-  title         String          @db.VarChar(50)
-  price         Int             @db.Integer
-  description   String          @db.VarChar(500)
-  img_url       String          @db.VarChar(255)
-  stock         Int             @db.Integer
-  category_id   Int
-  category      categories      @relation(fields: [category_id], references: [id])
-  sell_products sell_products[]
+  id                  Int                   @id @default(autoincrement())
+  title               String                @db.VarChar(50)
+  price               Int                   @db.Integer
+  description         String                @db.Text
+  img_url             String                @db.VarChar(255)
+  stock               Int                   @db.Integer
+  category_id         Int
+  category            categories            @relation(fields: [category_id], references: [id])
+  sell_products       sell_products[]
+  collection_products collection_products[]
 }
 
 model users {
@@ -65,8 +66,20 @@ model sell_products {
   sell    sells    @relation(fields: [sell_id], references: [id])
 }
 
-model coupon {
-  id       Int    @id @default(autoincrement())
-  coupon   String @db.VarChar(25)
-  discount Int
+model collection {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(100)
+  banner_img String   @db.VarChar(255)
+  body       String   @db.Text
+  date       DateTime @default(now()) @db.Timestamp()
+
+  collection_products collection_products[]
+}
+
+model collection_products {
+  id            Int        @id @default(autoincrement())
+  collection_id Int
+  product_id    Int
+  product       products   @relation(fields: [product_id], references: [id])
+  collection    collection @relation(fields: [collection_id], references: [id])
 }

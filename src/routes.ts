@@ -15,8 +15,9 @@ import { ReadSellForUser } from "./controllers/sell/ReadSellForUser";
 import { ReadSellForId } from "./controllers/sell/ReadSellForId";
 import { CreateCategory } from "./controllers/categories/CreateCategory";
 import { DeleteCategory } from "./controllers/categories/DeleteCategory";
-import { CreateCoupon } from "./controllers/coupons/CreateCoupon";
-import { UseCoupon } from "./controllers/coupons/UseCoupon";
+import { ReadCollection } from "./controllers/collection/ReadCollection";
+import { CreateCollection } from "./controllers/collection/CreateCollection";
+import { ReadCategory } from "./controllers/categories/ReadCategory";
 
 dotenv.config();
 
@@ -58,15 +59,19 @@ router.get("/sell", ensureAuthenticated, new ReadSellForUser().handle);
 router.get("/sell/products", ensureAuthenticated, new ReadSellForId().handle);
 
 // CD Category
-
-router.get("/add/category", ensureAuthenticated, new CreateCategory().handle);
+router.get("/categories", new ReadCategory().handle);
+router.post("/add/category", ensureAuthenticated, new CreateCategory().handle);
 router.delete(
   "/remove/category",
   ensureAuthenticated,
   new DeleteCategory().handle
 );
 
-router.post("/add/coupon", ensureAuthenticated, new CreateCoupon().handle);
-router.get("/use/coupon", ensureAuthenticated, new UseCoupon().handle);
+router.get("/collection", new ReadCollection().handle);
+router.post(
+  "/add/collection",
+  ensureAuthenticated,
+  new CreateCollection().handle
+);
 
 export { router };
